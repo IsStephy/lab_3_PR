@@ -39,13 +39,10 @@ class Commands:
             print(f"[{player_id}] Cleaning up mismatched cards: {cards_to_clean}")
             for row, column in cards_to_clean:
                 card = self.board.get_card(row, column)
-                # Only hide the card if it is still controlled by the same player
-                # (meaning it’s still part of their mismatched pair)
-                if not card.removed and card.controller == player_id:
+                # Don't clean if card is currently controlled by anyone or is matched/removed
+                if not card.removed and not card.matched and card.controller is None and card.face_up:
                     card.face_up = False
                     card.face_down = True
-                    card.controller = None
-                    card.matched = False
 
 
     async def release_control_and_update_queue(self, row: int, col: int) -> None:
@@ -120,15 +117,17 @@ class Commands:
                 for other_player_id, other_state in self.board.player_state.items():
                     if player_id != other_player_id:
                         if (row, col) in other_state["cards_last_turn"]:
-                            print(f"[{player_id}] Taking responsibility for ({row},{col}) from {other_player_id}")
-                            other_state["cards_last_turn"].remove((row, col))
-
+                            print(f"[{player_id}] Taking control of ({row},{col}) from {other_player_id}, clearing their last turn")
+                            other_state["cards_last_turn"].clear()
+                            break
                 card.controller = player_id
                 current_cards.append((row, col))
                 self.notify_watchers()
                 return "First card selected."
 
             elif len(current_cards) == 1:
+                await self.clean_cards_last_round(player_id)
+                
                 first_card_position = current_cards[0]
                 first_card = self.board.get_card(first_card_position[0], first_card_position[1])
 
