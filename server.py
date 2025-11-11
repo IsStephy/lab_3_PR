@@ -8,7 +8,8 @@ from Board import Board
 from CommandsImpl import Commands
 from Commands import (
     flip, look, watch,
-    apply_replace_command, reset_board
+    map as map_command,  # Rename to avoid conflict with built-in map()
+    reset_board
 )
 
 
@@ -36,7 +37,7 @@ class WebServer:
         @self.app.get("/flip/<player_id>/<location>")
         async def flip_route(player_id, location):
             try:
-                row, column = map(int, location.split(","))
+                row, column = list(builtins_map(int, location.split(",")))  # Use built-in map explicitly
                 play_message = await flip(self.commands, player_id, row, column)
                 board_state = await look(self.commands, player_id)
                 print(f"[{player_id}] Move result: {play_message}")
@@ -61,7 +62,7 @@ class WebServer:
                 if not old_value or not new_value:
                     raise ValueError("Request must include 'old' and 'new' keys.")
 
-                await apply_replace_command(self.commands, old_value, new_value)
+                await map_command(self.commands, old_value, new_value)
 
                 return Response("Replacement successful", status=HTTPStatus.OK, mimetype="text/plain")
 
@@ -76,7 +77,7 @@ class WebServer:
         @self.app.get("/replace/<player_id>/<old_value>/<new_value>")
         async def replace_get_route(player_id, old_value, new_value):
             try:
-                await apply_replace_command(self.commands, old_value, new_value)
+                await map_command(self.commands, old_value, new_value)
                 board_state = await look(self.commands, player_id)
                 return Response(board_state, status=HTTPStatus.OK, mimetype="text/plain")
             except (ValueError, Exception) as e:
@@ -107,6 +108,8 @@ class WebServer:
                 print(f"Error during reset: {e}")
                 return str(e), HTTPStatus.INTERNAL_SERVER_ERROR
 
+import builtins
+builtins_map = builtins.map
 
 def main():
     if len(sys.argv) < 3:

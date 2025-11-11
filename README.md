@@ -54,35 +54,6 @@ Memory Scramble is a distributed variant of the classic memory/concentration car
 
 ---
 
-## System Architecture
-
-### High-Level Architecture
-
-The system follows a client-server architecture with the following components:
-
-```
-┌─────────────────┐
-│  Web Browser    │
-│   (Client UI)   │
-└────────┬────────┘
-         │ HTTP/AJAX
-         │
-┌────────▼────────────────────────┐
-│   Quart Web Server              │
-│   (Asynchronous HTTP Handler)   │
-└────────┬────────────────────────┘
-         │
-┌────────▼────────────────────────┐
-│   Commands Layer                │
-│   (Game Logic & Validation)     │
-└────────┬────────────────────────┘
-         │
-┌────────▼────────────────────────┐
-│   Board Model                   │
-│   (State Management & Locks)    │
-└─────────────────────────────────┘
-```
-
 ### Component Breakdown
 
 #### 1. **Frontend (index.html)**
@@ -611,16 +582,6 @@ This Memory Scramble implementation successfully demonstrates:
 6. **Error Handling:** Comprehensive validation and error reporting
 7. **Testability:** Unit tests and integration simulation
 
-### Educational Value
-
-This project provides hands-on experience with:
-
-- **Network Programming:** HTTP, RESTful APIs, client-server architecture
-- **Concurrency:** Locks, events, async/await, race conditions
-- **Web Development:** JavaScript, AJAX, browser APIs
-- **Software Engineering:** Testing, documentation, version control
-- **System Design:** Scalability, performance, fault tolerance
-
 ### Final Remarks
 
 The Memory Scramble implementation represents a complete, production-ready multiplayer game server that handles the complex challenges of concurrent access to shared state. The combination of Python's asyncio framework, Quart's HTTP handling, and careful synchronization design creates a robust system capable of supporting many simultaneous players.
@@ -648,15 +609,3 @@ project/
     └── test.txt       
     └── zoom.txt       
 ```
-
-
-## References
-
-- Python asyncio documentation: https://docs.python.org/3/library/asyncio.html
-- Quart framework: https://quart.palletsprojects.com/
-- Hypercorn ASGI server: https://hypercorn.readthedocs.io/
-- RESTful API design principles
-- Concurrent programming patterns
-- HTTP protocol specification (RFC 7231)
-
----
